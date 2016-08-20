@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://evanplaice.github.io/jquery-csv/src/jquery.csv.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.js"></script>
+<script src="http://cdn.anychart.com/js/latest/anychart.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="http://cdn.anychart.com/css/latest/anychart-ui.css">
+</head>
+
+<script>
+function arrayToTable(tableData) {
+    var table = $('<table></table>');
+    $(tableData).each(function (i, rowData) {
+        var row = $('<tr></tr>');
+        $(rowData).each(function (j, cellData) {
+            row.append($('<td>'+cellData+'</td>'));
+        });
+        table.append(row);
+    });
+    return table;
+}
+
+function transpose(a)
+{
+  return a[0].map(function (_, c) { return a.map(function (r) { return r[c]; }); });
+}
+
+</script>
+
+
+<script>
+
+
+function drawChart(array2D){
+var chartTitle = "Canada Housing Market Indicator from csv"
+var series1_name = "Total";
+var series2_name = "Single Detached";
+var series3_name = "Multi";
+var sXaxis = "Year";
+var sYaxis = "Construction";
+
+var dataSet = anychart.data.set(array2D);
+var chart = anychart.line();
+
+var seriesData_1 = dataSet.mapAs({x: [0], value: [1]});
+var seriesData_2 = dataSet.mapAs({x: [0], value: [2]});
+var seriesData_3 = dataSet.mapAs({x: [0], value: [3]});
+var series1 = chart.line(seriesData_1);
+var series2 = chart.line(seriesData_2);
+var series3 = chart.line(seriesData_3);
+series1.name(series1_name);
+series2.name(series2_name);
+series3.name(series3_name);
+chart.legend().enabled(true).fontSize(13).padding([0,0,20,0]);
+
+// set axes titles
+var xAxis = chart.xAxis();
+xAxis.title(sXaxis);
+var yAxis = chart.yAxis();
+yAxis.title(sYaxis);
+chart.title(chartTitle);
+
+// pass the container id, chart will be displayed there
+chart.container("container");
+// call the chart draw() method to initiate chart display
+chart.draw();
+};	
+
+</script>
+
+<script>
+//var csv_filepath = "file:///Users/koatse/Dropbox/Analytics/HMI_simple2.csv";
+var csv_dropbox = "https://dl.dropboxusercontent.com/u/1116910/HMI_aggregate.csv";
+$(document).ready(function(){
+	$.ajax({
+        type: "GET",
+        url: csv_dropbox,
+        success: function (data) {
+        	var array2D = transpose(Papa.parse(data).data);
+        	drawChart(array2D);
+        	//for debugging
+        	//$('body').append(arrayToTable(array2D));
+        }
+    });
+});
+</script>
+
+
+<body>
+<div id="container" style="width: 1000px; height: 800px;"></div>
+</body>
+</html>
